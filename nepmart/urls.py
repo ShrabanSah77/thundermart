@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from . import views  # relative import from the same app
 
-urlpattern =[
-    path('', views.home),
-    path('house/', views.house, name='house'),
-    path('index/', views.index, name='index'),
+urlpatterns = [
+    path('', views.home, name='home'),        # URL: /
+    path('house/', views.house, name='house'),# URL: /house/
+    path('index/', views.index, name='index') # URL: /index/
 ]
