@@ -3,10 +3,10 @@ from django.http import HttpResponse
 
 # Create your views here.
 def home(request):
-    return HttpResponse("Hello, this is my first view!")
+    return HttpResponse("This is my first view page!!")
 
-def house(request):
-    return HttpResponse("Input your house name here.")
+def login_view(request):
+    return HttpResponse("This is my second view page!!")
 
-def index(request):
-    return HttpResponse("Print some message here.")
+def register_view(request):
+    return HttpResponse("This is my third view page!!")
