@@ -9,7 +9,7 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
     
-class Product(models.Model):
+class Products(models.Model):
     name = models.CharField(max_length=100)
     price = models.IntegerField()
     description = models.TextField()
