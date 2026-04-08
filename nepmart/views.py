@@ -11,3 +11,5 @@ def login_view(request):
 
 def register_view(request):
     return HttpResponse("This is my third view page!!")
+
+
