@@ -6,3 +6,4 @@ from .models import Product
 
 admin.site.register(Customer)
 admin.site.register(Product)
+
