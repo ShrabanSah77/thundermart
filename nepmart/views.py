@@ -12,9 +12,9 @@ def signIn_view(request):
     return HttpResponse("This is my second view page!!")
 
 def customer(request):
-    Customer = Customer.objects.all()
+    customer = Customer.objects.all()
     return HttpResponse(Customer)
 
 def product_list(request):
-    Products = Products.objects.all()
+    products = Products.objects.all()
     return HttpResponse(Products)
