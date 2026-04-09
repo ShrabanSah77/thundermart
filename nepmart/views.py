@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Customer
-from .models import Products
+from .models import Customer, Product
 
 # Create your views here.
 def index(request):
@@ -11,10 +10,10 @@ def index(request):
 def signIn_view(request):
     return HttpResponse("This is my second view page!!")
 
-def customer(request):
+def customer_list(request):
     customer = Customer.objects.all()
-    return HttpResponse(Customer)
+    return HttpResponse(f"{list(customer)}")
 
 def product_list(request):
-    products = Products.objects.all()
-    return HttpResponse(Products)
+    products = Product.objects.all()
+    return HttpResponse(f"{list(products)}")
