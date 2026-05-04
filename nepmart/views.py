@@ -20,7 +20,7 @@ def login_view(request):
             #Redirect to the source page
 
         else:
-            #Return to the invalid page
+            #Return to the invalid pages
 
 
             return redirect('home')
