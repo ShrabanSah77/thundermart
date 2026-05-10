@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 from .models import Customer, Product
 
 # Create your views here.
@@ -12,21 +13,23 @@ def index(request):
 def login_view(request):
     if request.method == ('POST'):
         username = request.POST.get('username: ')
-        password = request.POST.get('password')
+        password = request.POST.get('password: ')
 
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
-            #Redirect to the source page
-
+            return redirect('home') #Redirect to the homepage
         else:
-            #Return to the invalid pages
+             messages.error(request, 'Invalid username or password')#Return to the invalid pages
 
-
-            return redirect('home')
     return render(request, 'signIn/login.html')
 
 def register_view(request):
+    if request.method == ('POST'):
+        username = request.POST.get('username: ')
+        password = request.POST.get('password: ')
+        
     return render(request, 'signIn/register.html')
 
 def forgotPassword_view(request):
