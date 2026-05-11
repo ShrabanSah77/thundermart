@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -6,9 +6,12 @@ from django.contrib import messages
 from .models import Product, Customer
 
 # Create your views here.
+# Index View
 def index(request):
     context = {'user_name': 'Shraban'}
     return render(request, 'index.html', context)
+
+# Login View
 
 def login_view(request):
     if request.method == ('POST'):
@@ -24,6 +27,8 @@ def login_view(request):
              messages.error(request, 'Invalid username or password')#Return to the invalid pages
 
     return render(request, 'signIn/login.html')
+
+# Register View
 
 def register_view(request):
     if request.method == 'POST':
@@ -46,20 +51,72 @@ def register_view(request):
         
     return render(request, 'signIn/register.html')
 
+# Forgot password view
+
 def forgot_password_view(request):
     if request.method == 'POST':
         email = request.POST['email']
         messages.success(request, 'Password reset link sent(check console)')
     return render(request, 'signIn/forgot_password.html')
 
+# Logout View
+
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+# Customer View
 
 def customer_list(request):
     customer = Customer.objects.all()
     return HttpResponse(f"{list(customer)}")
 
-def product_list(request):
-    products = Product.objects.all()
-    return HttpResponse(f"{list(products)}")
+# Add to cart view
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    cart = request.session.get('cart', {})
+
+    if srt(product_id) in cart:
+        cart[srt(product_id)] += 1
+    else:
+        cart[str(product_id)] = 1
+
+    request.session['cart'] = cart
+    return redirect('product_list')
+
+# Cart View
+
+def cart_view(request):
+    cart = request.session.get('cart', {})
+    products = []
+    total = 0
+
+    for product_id, qty in cart.items():
+        product = Product.objects.get(id=product_id)
+        subtotal = product.prict * qty
+
+        products.append({
+            'product': product,
+            'quantity': qty,
+            'subtotal': subtotal
+        })
+
+        total += subtotal
+
+    return render(request, 'product/cart.html', {
+        'items': products,
+        'total': total
+    })
+
+# Remove from cart view
+
+def remove_from_cart(request, product_id):
+    cart = request.session.get('cart', {})
+
+    if str(product_id) in cart:
+        del cart[str(product_id)]
+
+    request.session['cart'] = cart
+    return redirect('cart')
