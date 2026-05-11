@@ -1,0 +1,13 @@
+<h2>Your Cart</h2>
+
+{% for item in items %}
+<p>
+    {{item.product.name}}
+    Qty: {{item.quantity}}
+    Subtotal: {{item.subtotal}}
+    <a href="{% url 'remove_from_cart' item.product.id %}">Remove</a>
+</p>
+
+{% endfor %}
+
+<h3>Total: {{total}}</h3>
