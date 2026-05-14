@@ -76,10 +76,10 @@ def customer_list(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
-    cart = request.session.get('cart', {})
+    cart = request.session.get('cart', [])
 
-    if srt(product_id) in cart:
-        cart[srt(product_id)] += 1
+    if str(product_id) in cart:
+        cart[str(product_id)] += 1
     else:
         cart[str(product_id)] = 1
 
