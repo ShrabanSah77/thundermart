@@ -5,8 +5,12 @@
     {{item.product.name}}
     Qty: {{item.quantity}}
     Subtotal: {{item.subtotal}}
-    <a href="{% 'add_to_cart' product.id %}">Add to cart</a>
-    <a href="{% url 'remove_from_cart' item.product.id %}">Remove</a>
+    <a href="{% url 'add_to_cart' item.product.id %}">
+        Add to cart
+    </a>
+        <a href="{% url 'remove_from_cart' item.product.id %}">
+            Remove
+        </a>
 </p>
 
 {% endfor %}
