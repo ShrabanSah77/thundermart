@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+
+# Model for customers 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -11,6 +13,8 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
     
+# Model for Products
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     price = models.IntegerField()
