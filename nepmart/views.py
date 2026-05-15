@@ -76,7 +76,7 @@ def customer_list(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
-    cart = request.session.get('cart', [])
+    cart = request.session.get('cart', {})
 
     if str(product_id) in cart:
         cart[str(product_id)] += 1
@@ -84,7 +84,7 @@ def add_to_cart(request, product_id):
         cart[str(product_id)] = 1
 
     request.session['cart'] = cart
-    return redirect('product_list')
+    return redirect('cart')
 
 # Cart View
 
@@ -94,8 +94,9 @@ def cart_view(request):
     total = 0
 
     for product_id, qty in cart.items():
-        product = Product.objects.get(id=product_id)
-        subtotal = product.prict * qty
+        product = get_object_or_404(Product, id=product_id)
+        
+        subtotal = product.price * qty
 
         products.append({
             'product': product,
