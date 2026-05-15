@@ -86,6 +86,27 @@ def add_to_cart(request, product_id):
     request.session['cart'] = cart
     return redirect('cart')
 
+# Increase item quantity
+
+def increase_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    if str(product_id) in cart:
+        cart[str(product_id)] += 1
+    request.session['cart'] = cart
+    return redirect('cart')
+
+# Decrease ietm quantity
+
+def decrease_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    if str(product_id) in cart:
+        cart[str(product_id)] -= 1
+        if cart[str(product_id)] <= 0:
+            del cart[str(product_id)]
+
+    request.session['cart'] = cart
+    return redirect('cart')
+
 # Cart View
 
 def cart_view(request):
