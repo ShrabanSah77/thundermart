@@ -145,3 +145,53 @@ def remove_from_cart(request, product_id):
 
 # Checkout View
 
+def checkout(request):
+    cart = request.session.get('cart', {})
+    
+    if not cart:
+        return redirect('cart')
+    
+    cart_items = []
+    total = 0
+
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=product_id)
+        subtotal = product.price * quantity
+        total += subtotal
+
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': subtotal
+        })
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+        payment_method = request.POST.get('payment_method')
+
+        order = Order.objects.create(
+            user = request.user,
+            name = name,
+            address = address,
+            phone = phone,
+            payment_method = payment_method,
+            total_price = total
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order = order,
+                product = item['product'],
+                quantity = item['quantity'],
+                price = item['product'].price
+            )
+
+            request.session['cart'] = {}
+            return redirect('cart')
+        
+        return render(request, 'product/checkout.html', {
+            'cart_items': cart_items,
+            'total': total
+        })
