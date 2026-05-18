@@ -1,0 +1,29 @@
+<h1>Checkout</h1>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <input type="text" name="name" placeholder="Full Name" />
+  <br />
+  <textarea name="address" placeholder="Address"></textarea>
+  <br />
+  <input type="text" name="phone" placeholder="Phone Number" />
+  <br />
+  <select name="payment_method">
+    <option value="COD">Cash On Delivery</option>
+    <option value="CARD">Card</option>
+  </select>
+  <br />
+  <button type="submit">Place Order</button>
+</form>
+
+<hr />
+
+<h2>Order Summary</h2>
+{% for item in cart_items %}
+
+<p>{{item.product.name}} Qty: {{item.quantity}} {{item.subtotal}}</p>
+
+{% endfor %}
+
+<h3>Total: {{total}}</h3>
