@@ -8,6 +8,7 @@
 
   <a href="{% url 'decrease_cart' item.product.id %}">-</a>
   <a href="{% url 'remove_from_cart' item.product.id %}"> Remove </a>
+  <a href="{% url 'checkout' %}">Checkout</a>
 </p>
 {% endfor %}
 <h3>Total: {{total}}</h3>
