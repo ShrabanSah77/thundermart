@@ -20,10 +20,11 @@
 <hr />
 
 <h2>Order Summary</h2>
+
 {% for item in cart_items %}
 
-<p>{{item.product.name}} Qty: {{item.quantity}} {{item.subtotal}}</p>
+<p>{{ item.product.name }} - Qty: {{ item.quantity }} - {{ item.subtotal }}</p>
 
 {% endfor %}
 
-<h3>Total: {{total}}</h3>
+<h3>Total: {{ total }}</h3>
