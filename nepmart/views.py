@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Product, Customer
+from .models import Customer, Product, Order, OrderItem
 
 # Create your views here.
 # Index View
@@ -74,16 +74,19 @@ def customer_list(request):
 # Add to cart view
 
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
 
     cart = request.session.get('cart', {})
 
-    if str(product_id) in cart:
-        cart[str(product_id)] += 1
+    product_id = str(product_id)
+
+    if product_id in cart:
+        cart[product_id] += 1
     else:
-        cart[str(product_id)] = 1
+        cart[product_id] = 1
 
     request.session['cart'] = cart
+    request.session.modified = True
+
     return redirect('cart')
 
 # Increase item quantity
@@ -110,26 +113,32 @@ def decrease_cart(request, product_id):
 # Cart View
 
 def cart_view(request):
+
     cart = request.session.get('cart', {})
-    products = []
+
+    items = []
     total = 0
 
-    for product_id, qty in cart.items():
-        product = get_object_or_404(Product, id=product_id)
-        
-        subtotal = product.price * qty
+    for product_id, quantity in cart.items():
 
-        products.append({
-            'product': product,
-            'quantity': qty,
-            'subtotal': subtotal
-        })
+        product = get_object_or_404(Product, id=product_id)
+
+        subtotal = product.price * quantity
 
         total += subtotal
 
+        items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': subtotal
+        })
+
+    products = Product.objects.all()
+
     return render(request, 'product/cart.html', {
-        'items': products,
-        'total': total
+        'items': items,
+        'total': total,
+        'products': products
     })
 
 # Remove from cart view
@@ -146,17 +155,21 @@ def remove_from_cart(request, product_id):
 # Checkout View
 
 def checkout(request):
+
     cart = request.session.get('cart', {})
-    
+
     if not cart:
         return redirect('cart')
-    
+
     cart_items = []
     total = 0
 
     for product_id, quantity in cart.items():
+
         product = get_object_or_404(Product, id=product_id)
+
         subtotal = product.price * quantity
+
         total += subtotal
 
         cart_items.append({
@@ -166,32 +179,35 @@ def checkout(request):
         })
 
     if request.method == 'POST':
+
         name = request.POST.get('name')
         address = request.POST.get('address')
         phone = request.POST.get('phone')
         payment_method = request.POST.get('payment_method')
 
         order = Order.objects.create(
-            user = request.user,
-            name = name,
-            address = address,
-            phone = phone,
-            payment_method = payment_method,
-            total_price = total
+            user=request.user,
+            name=name,
+            address=address,
+            phone=phone,
+            payment_method=payment_method,
+            total_price=total
         )
 
         for item in cart_items:
+
             OrderItem.objects.create(
-                order = order,
-                product = item['product'],
-                quantity = item['quantity'],
-                price = item['product'].price
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['product'].price
             )
 
-            request.session['cart'] = {}
-            return redirect('cart')
-        
-        return render(request, 'product/checkout.html', {
-            'cart_items': cart_items,
-            'total': total
-        })
+        request.session['cart'] = {}
+
+        return render(request, 'product/order_success.html', {'order': order})
+
+    return render(request, 'product/checkout.html', {
+        'cart_items': cart_items,
+        'total': total
+    })
