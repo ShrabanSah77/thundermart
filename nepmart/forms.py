@@ -1,4 +1,15 @@
 from django import forms
-class LoginForm(forms.form):
-    username = forms.CharField(max_length=65)
-    password = forms.CharField(max_length= 65, widget=forms.PasswordInput)
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+
+class CheckoutForm(forms.Form):
+    name = forms.CharField()
+    phone = forms.CharField()
+    address = forms.CharField()
+    payment_method = forms.ChoiceField(choices=[
+        ('COD', 'Cash on Delivery')
+    ])

@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from .forms import CheckoutForm
 from .models import Customer, Product, Order, OrderItem
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 # Index View
@@ -14,19 +16,29 @@ def index(request):
 # Login View
 
 def login_view(request):
-    if request.method == ('POST'):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
 
-        user = authenticate(request, username=username, password=password)
+        if form.is_valid():
+            user = authenticate(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password']
+            )
 
-        if user:
-            login(request, user, 'Logged in successfully')
-            return redirect('index') #Redirect to the homepage
-        else:
-             messages.error(request, 'Invalid username or password')#Return to the invalid pages
+            if user:
+                auth_login(request, user)
 
-    return render(request, 'signIn/login.html')
+                # IMPORTANT PART 👇
+                next_page = request.GET.get('next')
+                if next_page:
+                    return redirect(next_page)
+
+                return redirect('index')
+
+    else:
+        form = LoginForm()
+
+    return render(request, 'signIn/login.html', {'form': form})
 
 # Register View
 
@@ -154,8 +166,8 @@ def remove_from_cart(request, product_id):
 
 # Checkout View
 
+@login_required
 def checkout(request):
-
     cart = request.session.get('cart', {})
 
     if not cart:
@@ -165,11 +177,8 @@ def checkout(request):
     total = 0
 
     for product_id, quantity in cart.items():
-
         product = get_object_or_404(Product, id=product_id)
-
         subtotal = product.price * quantity
-
         total += subtotal
 
         cart_items.append({
@@ -179,35 +188,42 @@ def checkout(request):
         })
 
     if request.method == 'POST':
+        form = CheckoutForm(request.POST)
 
-        name = request.POST.get('name')
-        address = request.POST.get('address')
-        phone = request.POST.get('phone')
-        payment_method = request.POST.get('payment_method')
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            phone = form.cleaned_data['phone']
+            address = form.cleaned_data['address']
+            payment_method = form.cleaned_data['payment_method']
 
-        order = Order.objects.create(
-            user=request.user,
-            name=name,
-            address=address,
-            phone=phone,
-            payment_method=payment_method,
-            total_price=total
-        )
-
-        for item in cart_items:
-
-            OrderItem.objects.create(
-                order=order,
-                product=item['product'],
-                quantity=item['quantity'],
-                price=item['product'].price
+            order = Order.objects.create(
+                user=request.user,
+                name=name,
+                phone=phone,
+                address=address,
+                payment_method=payment_method,
+                total_price=total
             )
 
-        request.session['cart'] = {}
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    quantity=item['quantity'],
+                    price=item['product'].price
+                )
 
-        return render(request, 'product/order_success.html', {'order': order})
+            request.session['cart'] = {}
+
+            return render(request, 'product/order_success.html', {
+                'order': order
+            })
+
+    else:
+        form = CheckoutForm()
 
     return render(request, 'product/checkout.html', {
+        'form': form,
         'cart_items': cart_items,
         'total': total
     })
