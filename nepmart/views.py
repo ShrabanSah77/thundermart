@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import CheckoutForm
+from .forms import CheckoutForm, LoginForm
 from .models import Customer, Product, Order, OrderItem
 from django.contrib.auth.decorators import login_required
 
@@ -16,6 +16,8 @@ def index(request):
 # Login View
 
 def login_view(request):
+    next_page = request.GET.get('next', '')  # default safe empty string
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
 
@@ -26,10 +28,10 @@ def login_view(request):
             )
 
             if user:
-                auth_login(request, user)
+                login(request, user)
 
-                # IMPORTANT PART 👇
-                next_page = request.GET.get('next')
+                next_page = request.POST.get('next')
+
                 if next_page:
                     return redirect(next_page)
 
@@ -38,7 +40,10 @@ def login_view(request):
     else:
         form = LoginForm()
 
-    return render(request, 'signIn/login.html', {'form': form})
+    return render(request, 'signIn/login.html', {
+        'form': form,
+        'next': next_page
+    })
 
 # Register View
 
