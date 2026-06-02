@@ -88,6 +88,12 @@ def customer_list(request):
     customer = Customer.objects.all()
     return HttpResponse(f"{list(customer)}")
 
+# Order View
+
+def my_orders(request):
+    orders = Order.objects.filter(user = request.user)
+    return render(request, 'product/my_orders.html', {'orders': orders})
+
 # Add to cart view
 
 def add_to_cart(request, product_id):
