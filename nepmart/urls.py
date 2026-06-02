@@ -8,6 +8,7 @@ urlpatterns = [
     path('forgot_password/', views.forgot_password_view, name = 'forgot_password'),
     path('logout/', views.logout_view, name = 'logout'),    
     path('customer_list/', views.customer_list, name = 'customer_list'),
+    path('my_orders/', views.my_orders, name = 'my_orders'),
     path('add_to_cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_view, name = 'cart'),
     path('remove-from-cart/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
