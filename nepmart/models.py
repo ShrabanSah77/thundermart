@@ -28,19 +28,40 @@ class Product(models.Model):
 # Models for order
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.TextField()
     phone = models.CharField(max_length=20)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='orders'
+    )
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+    ]
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Pending'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
 
     PAYMENT_CHOICE = {
         ('COD', 'Cash on Delivery'),
         ('CARD', 'Card'),
     }
 
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICE)
-    total_price = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICE)   
 
     def __str__(self):
         return self.name
@@ -48,10 +69,16 @@ class Order(models.Model):
 # Models for Ordered Items
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    price = models.IntegerField()
+    quantity = models.PositiveBigIntegerField(default=1)
+    price = models.DecimalField(
+        max_digits= 10,
+        decimal_places= 2
+    )
+
+    def get_total(self):
+        return self.quantity * self.price
 
     def __str__(self):
-        return self.product.name
+        return f"{self.product.name} * {self.quantity}"
