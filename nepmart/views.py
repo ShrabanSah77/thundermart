@@ -72,9 +72,28 @@ def register_view(request):
 
 def forgot_password_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        messages.success(request, 'Password reset link sent(check console)')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('forgot_password')
+
+        try:
+            user = User.objects.get(username=username)
+            user.set_password(password)
+            user.save()
+
+            messages.success(request, "Pasword reset successfully. Please login.")
+            return redirect('login')  # Redirect to login page
+
+        except User.DoesNotExist:
+            messages.error(request, "Username not found.")
+            return redirect('forgot_password')
+
     return render(request, 'signIn/forgot_password.html')
+
 
 # Logout View
 
