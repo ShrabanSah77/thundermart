@@ -109,6 +109,7 @@ def customer_list(request):
 
 # Order View
 
+@login_required
 def my_orders(request):
     orders = Order.objects.filter(user = request.user)
     return render(request, 'product/my_orders.html', {'orders': orders})
